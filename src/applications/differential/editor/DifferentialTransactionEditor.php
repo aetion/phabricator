@@ -720,6 +720,7 @@ final class DifferentialTransactionEditor
         $has_rejecting_reviewer = false;
         $has_rejecting_older_reviewer = false;
         $has_blocking_reviewer = false;
+        $has_non_accepting_reviewer = false;
         foreach ($object->getReviewerStatus() as $reviewer) {
           $reviewer_status = $reviewer->getStatus();
           switch ($reviewer_status) {
@@ -738,13 +739,18 @@ final class DifferentialTransactionEditor
               }
               break;
           }
+          if ($reviewer_status != DifferentialReviewerStatus::STATUS_ACCEPTED) {
+            $has_non_accepting_reviewer = true;
+          }
         }
 
         $new_status = null;
         if ($has_accepting_user &&
             !$has_rejecting_reviewer &&
             !$has_rejecting_older_reviewer &&
-            !$has_blocking_reviewer) {
+            !$has_blocking_reviewer &&
+            !$has_non_accepting_reviewer
+        ) {
           $new_status = $status_accepted;
         } else if ($has_rejecting_reviewer) {
           // This isn't accepted, and there's at least one rejecting reviewer,
